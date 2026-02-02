@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 23rd Birthday Papz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --pink-soft: #ffe4e9; --pink-dark: #ff85a1; --text-color: #7a4a52; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Quicksand', sans-serif; background-color: var(--pink-soft); color: var(--text-color); overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        
+        /* Floating Decor */
+        .decor { position: absolute; z-index: 0; animation: float3D 5s infinite ease-in-out; pointer-events: none; opacity: 0.6; }
+        @keyframes float3D { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(15px, -25px) rotate(10deg); } }
+        
+        #app-container { width: 90%; max-width: 450px; height: 85vh; background: rgba(255, 255, 255, 0.95); border-radius: 30px; box-shadow: 0 20px 50px rgba(255, 133, 161, 0.2); position: relative; text-align: center; display: flex; flex-direction: column; overflow: hidden; z-index: 10; }
+        
+        .page { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box; }
+        .page.active { display: flex; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        h1, h2, .cursive { font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: var(--pink-dark); margin: 10px 0; }
+        p { font-size: 1.4rem; font-family: 'Dancing Script', cursive; }
+        .btn { background: var(--pink-dark); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.3rem; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(255, 133, 161, 0.3); z-index: 20; }
+
+        /* Page 4: Realistic Balloons */
+        .balloon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .balloon-wrap { display: flex; flex-direction: column; align-items: center; }
+        .balloon { width: 75px; height: 95px; background: var(--pink-dark); border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.1); }
+        .balloon::after { content: ''; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid var(--pink-dark); }
+        .thread { width: 1.5px; height: 50px; background: rgba(0,0,0,0.15); margin-top: -1px; border-radius: 10px; transform: rotate(-2deg); }
+        .popped-text { font-family: 'Dancing Script', cursive; font-size: 1.6rem; color: #000; font-weight: 700; display: none; }
+
+        /* THE LAST PAGE: LOVE LETTER LAYOUT */
+        .letter-page { display: none; flex-direction: column; height: 100%; padding: 0; }
+        .letter-page.active { display: flex; }
+        .letter-header { padding: 25px 20px 10px; background: #fff; flex-shrink: 0; border-bottom: 1px solid var(--pink-soft); }
+        .circle-frame { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--pink-dark); overflow: hidden; margin: 0 auto 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .circle-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .letter-scroll-area { flex-grow: 1; overflow-y: auto; padding: 20px; text-align: left; background: #fffcfd; }
+        .letter-content { font-family: 'Dancing Script', cursive; font-size: 1.4rem; line-height: 1.6; color: #333; }
+    </style>
+</head>
+<body>
+    <audio id="bg-music" loop><source src="birthday-song.mp3" type="audio/mpeg"></audio>
+
+    <div id="app-container">
+        <div class="page active" id="p1">
+            <h1>Happy Birthday To My Sweetest Soul!</h1>
+            <p>I have a surprise for you...</p>
+            <button class="btn" onclick="start()">Open Surprise 🎁</button>
+        </div>
+
+        <div class="page" id="p2">
+            <h1>It's your day!</h1>
+            <p>My darling was born today, 23 years.</p>
+            <button class="btn" onclick="next(4)">Next ✨</button>
+        </div>
+
+        <div class="page" id="p4">
+            <h2>Pop to see my message!</h2>
+            <div class="balloon-grid">
+                <div class="balloon-wrap"><div class="balloon" onclick="pop(this)"><span class="popped-text">You</span></div><div class="thread"></div></div>
+                <div class="balloon-wrap"><div class="balloon" onclick="pop(this)"><span class="popped-text">are</span></div><div class="thread"></div></div>
+                <div class="balloon-wrap"><div class="balloon" onclick="pop(this)"><span class="popped-text">my</span></div><div class="thread"></div></div>
+                <div class="balloon-wrap"><div class="balloon" onclick="pop(this)"><span class="popped-text">Lucky charm</span></div><div class="thread"></div></div>
+            </div>
+            <button class="btn" id="p4-next" style="display:none" onclick="next(5)">Read my letter 💌</button>
+        </div>
+
+        <div class="page letter-page" id="p5">
+            <div class="letter-header">
+                <div class="circle-frame">
+                    <img src="us.jpeg" onerror="this.src='us.jpg';">
+                </div>
+                <h2>Love You Forever</h2>
+            </div>
+            <div class="letter-scroll-area">
+                <div class="letter-content">
+Today isn’t just the day you were born it’s the day the world quietly prepared the person my heart would one day recognize as home. I don’t know how the universe planned it, but somehow every path, every wait, every ache led me to you. And loving you feels like a destiny I didn’t know I was waiting for.
+<br><br>
+You are the place my soul rests when life feels heavy. In your presence, even silence feels understood. You see me not just my smiles, but my fears, my broken edges, my unspoken emotions and you stay. That alone means more to me than I could ever put into words.
+<br><br>
+I love the way you exist in my life not loudly, not forcefully, but steadily, like a promise that never breaks. You are my comfort in chaos, my warmth on cold days, my calm after storms. When I think of the future, I don’t imagine places or moments I imagine you, beside me, walking through everything hand in hand.
+<br><br>
+On your birthday, I wish you a life as beautiful as your heart, a love as deep as the one you give, and a happiness that finds you even on days you forget to look for it. I wish for your dreams to grow fearless, for your smile to never lose its magic, and for you to always know how deeply, endlessly loved you are.
+<br><br>
+And as for me:
+I promise to choose you, even on days when love is hard.
+To hold you when words fail.
+To stand by you when the world feels unfair.
+To love you not just in moments of joy, but in every version of you that exists. 
+<br><br>
+<b>Happy Birthday, my Love. And I Love You as Always and even More Than Always ❤️✨</b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pops = 0;
+        function start() { document.getElementById('bg-music').play(); next(2); for(let i=0; i<15; i++) createDecor(); }
+        function next(n) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('p' + n).classList.add('active'); }
+        
+        function pop(el) { 
+            if (el.style.background === 'transparent') return;
+            el.style.background = 'transparent'; 
+            el.nextElementSibling.style.opacity = '0'; 
+            el.querySelector('.popped-text').style.display = 'block'; 
+            confetti({ particleCount: 40, colors: ['#ff85a1', '#000', '#fff'] }); 
+            pops++; 
+            if(pops === 4) {
+                document.getElementById('p4-next').style.display = 'block';
+                setInterval(() => {
+                    confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 } });
+                    confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 } });
+                }, 500);
+            }
+        }
+
+        function createDecor() { 
+            const symbols = ['❤️', '✨', '🌸']; 
+            let s = document.createElement('div'); 
+            s.className = 'decor'; s.innerText = symbols[Math.floor(Math.random()*symbols.length)]; 
+            s.style.left = Math.random()*100 + 'vw'; s.style.top = Math.random()*100 + 'vh'; 
+            s.style.fontSize = (Math.random()*20 + 15) + 'px'; document.body.appendChild(s); 
+        }
+    </script>
+</body>
+</html>
